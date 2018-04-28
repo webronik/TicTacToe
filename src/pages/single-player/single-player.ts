@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {IonicPage, NavController, NavParams} from 'ionic-angular';
+import {AlertController, IonicPage, NavController, NavParams} from 'ionic-angular';
 
 @IonicPage()
 @Component({
@@ -11,11 +11,7 @@ export class SinglePlayerPage {
   boardRows: number[] = [1, 2, 3];
   boardCols: number[] = [1, 2, 3];
 
-  gameBoard: string[][] = [
-    [null, null, null],
-    [null, null, null],
-    [null, null, null]
-  ];
+  gameBoard: string[][];
 
   firstGamer = "FIRSTPLAYER";
   secondGamer = "SECONDPLAYER";
@@ -24,14 +20,55 @@ export class SinglePlayerPage {
   gamer: string;
 
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtrl: AlertController) {
+
   }
 
   ionViewDidLoad() {
+    this.initialGameBoard();
   }
 
+  // инициализация игровой доски - почистим сетку
+  initialGameBoard() {
+    this.gameBoard = [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null]
+    ];
+
+    for (let row of this.boardRows) {
+      for (let col of this.boardCols) {
+        document.getElementById('id_'+row+''+col).classList.remove('cell-background1', 'cell-background2');
+      }
+    }
+  }
+
+  // закрыть страницу
   goBack() {
     this.navCtrl.pop();
+  }
+
+
+  doConfirm(gamerSymbol: string) {
+    let confirm = this.alertCtrl.create({
+      title: 'УРАААА!!!',
+      message: 'Победил   игрок '+gamerSymbol,
+      buttons: [
+        {
+          text: 'Уходим отсюда',
+          handler: () => {
+            this.goBack()
+          }
+        },
+        {
+          text: 'Сыграть еще раз',
+          handler: () => {
+            this.initialGameBoard();
+          }
+        }
+      ]
+    });
+    confirm.present()
   }
 
 
@@ -55,9 +92,10 @@ export class SinglePlayerPage {
       let itemId: string = this.getCellId(row + '' + col);
       let className: string = this.getGamerClassName(gamer);
       document.getElementById(itemId).classList.add(className);
-      //проверим, вдруг выиграл?
-      if (!this.isWinning(gamer)){
-        console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+      // проверим, вдруг выиграл?
+      if (this.isWinning(gamer)){
+        console.log('WIN!!!!!!!!!');
+        this.doConfirm(gamerSymbol);
       } else {
         // передать ход другому
         this.setNextGamer();
@@ -65,10 +103,11 @@ export class SinglePlayerPage {
     } else {
       console.log('ячейка занята');
     }
-    this.gameBoardPrint();
+    //this.gameBoardPrint();
   }
 
 
+  // вернуть свободную чейку
   freeCellGameBoard(): CellGameBoard{
     for (let row of this.boardRows) {
       for (let col of this.boardCols) {
@@ -80,11 +119,33 @@ export class SinglePlayerPage {
   }
 
 
+  // проверить, нету ли выигрышной комбинации
   isWinning(gamer: string): boolean {
     let gamerSymbol = this.getGamerSymbol(gamer);
+    let b: boolean = false;
 
-    return true;
+    if (this.gameBoard[0][0] == gamerSymbol && this.gameBoard[0][1] == gamerSymbol && this.gameBoard[0][2] == gamerSymbol) {
+      b = true;
+    } else if (this.gameBoard[1][0] == gamerSymbol && this.gameBoard[1][1] == gamerSymbol && this.gameBoard[1][2] == gamerSymbol) {
+      b = true;
+    } else if (this.gameBoard[2][0] == gamerSymbol && this.gameBoard[2][1] == gamerSymbol && this.gameBoard[2][2] == gamerSymbol) {
+      b = true;
+    } else if (this.gameBoard[0][0] == gamerSymbol && this.gameBoard[1][0] == gamerSymbol && this.gameBoard[2][0] == gamerSymbol) {
+      b = true;
+    } else if (this.gameBoard[0][1] == gamerSymbol && this.gameBoard[1][1] == gamerSymbol && this.gameBoard[2][1] == gamerSymbol) {
+      b = true;
+    } else if (this.gameBoard[0][2] == gamerSymbol && this.gameBoard[1][2] == gamerSymbol && this.gameBoard[2][2] == gamerSymbol) {
+      b = true;
+    } else if (this.gameBoard[0][0] == gamerSymbol && this.gameBoard[1][1] == gamerSymbol && this.gameBoard[2][2] == gamerSymbol) {
+      b = true;
+    } else if (this.gameBoard[0][2] == gamerSymbol && this.gameBoard[1][1] == gamerSymbol && this.gameBoard[2][0] == gamerSymbol) {
+      b = true;
+    }
+
+    return b;
   }
+
+
 
   setSymbolOnGameBoard(gamerSymbol: string, row: number, col: number){
     this.gameBoard[row - 1][col - 1] = gamerSymbol;
