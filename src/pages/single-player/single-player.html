@@ -13,10 +13,16 @@
   </div>
 
   <div id="content">
+    <!--    <div *ngFor="let row of boardRows" class="grid-row">
+          <div *ngFor="let col of boardCols"
+               (click)="goPlay(board_ids[])"
+               [id]="getCellId(cell_index)">
+          </div>
+        </div>-->
     <div *ngFor="let row of boardRows" class="grid-row">
       <div *ngFor="let col of boardCols"
-           (click)="goPlay(row, col)"
-           [id]="getCellId(row+''+col)">
+           (click)="goPlay(getCellIndex(row, col))"
+           [id]="getCellId(row, col)">
       </div>
     </div>
   </div>

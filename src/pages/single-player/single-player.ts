@@ -8,16 +8,27 @@ import {AlertController, IonicPage, NavController, NavParams} from 'ionic-angula
 })
 export class SinglePlayerPage {
 
+
+  board: number[];
+
   boardRows: number[] = [1, 2, 3];
   boardCols: number[] = [1, 2, 3];
 
+
   gameBoard: string[][];
+
+  winCombination: number[][] = [
+    [1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 4, 7], [2, 5, 8], [3, 6, 9], [1, 5, 9], [3, 5, 7]
+  ];
 
   firstGamer = "FIRSTPLAYER";
   secondGamer = "SECONDPLAYER";
   firstGamerSymbol: string = 'x';
   secondGamerSymbol: string = '0';
+  firstGamerNumber: number = 1;
+  secondGamerNumber: number = 2;
   gamer: string;
+  finishGame: FinishGame;
 
 
   constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtrl: AlertController) {
@@ -28,7 +39,8 @@ export class SinglePlayerPage {
     this.initialGameBoard();
   }
 
-  // инициализация игровой доски - почистим сетку
+
+  // инициализация игровой доски - почистить сетку, установим первого игрока
   initialGameBoard() {
     this.gameBoard = [
       [null, null, null],
@@ -36,11 +48,16 @@ export class SinglePlayerPage {
       [null, null, null]
     ];
 
+    this.board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
     for (let row of this.boardRows) {
       for (let col of this.boardCols) {
-        document.getElementById('id_'+row+''+col).classList.remove('cell-background1', 'cell-background2');
+        document.getElementById(this.getCellId(row, col))
+          .classList.remove('cell-background1', 'cell-background2');
       }
     }
+
+    this.setGamer(this.firstGamer);
   }
 
   // закрыть страницу
@@ -50,9 +67,12 @@ export class SinglePlayerPage {
 
 
   doConfirm(gamerSymbol: string) {
+    let msgWin: string, msgDraw: string;
+    msgWin = gamerSymbol == "1" ? 'Молодец, ты победил!' : 'Ну ты лузер, ты проиграл!';
+    msgDraw = 'Ничья!!!';
     let confirm = this.alertCtrl.create({
       title: 'УРАААА!!!',
-      message: 'Победил   игрок '+gamerSymbol,
+      message: this.finishGame.finishType == 'WIN' ? msgWin : msgDraw, // TODO: enum
       buttons: [
         {
           text: 'Уходим отсюда',
@@ -72,83 +92,158 @@ export class SinglePlayerPage {
   }
 
 
-
-  goPlay(row: number, col: number) {
-    console.log('игрок '+this.firstGamer+': id_'+row+''+col);
-    this.play(this.firstGamer, row, col);
+  goPlay(cell: number) {
+    //console.log('игрок ' + this.firstGamer + ': id_' + cell);
+    this.play(this.firstGamer, cell);
     if (this.getGamer() == this.secondGamer) {
-      let freeCellGameBoard = this.freeCellGameBoard();
-      console.log('игрок '+this.secondGamer+': id_'+freeCellGameBoard.row+''+freeCellGameBoard.col);
-      this.play(this.secondGamer, freeCellGameBoard.row, freeCellGameBoard.col);
+      let cellBoard = this.searchMove(); //this.freeCellGameBoard();
+      //console.log('игрок ' + this.secondGamer + ': id_' + cellBoard);
+      this.play(this.secondGamer, cellBoard);
     }
   }
 
-  play(gamer: string, row: number, col: number): void {
-    if (this.checkCellIsEmpty(row, col)) {
+  play(gamer: string, cell: number): void {
+    if (this.checkCellIsEmpty(cell)) {
       // какими играет игрок
-      let gamerSymbol: string = this.getGamerSymbol(gamer);
-      this.setSymbolOnGameBoard(gamerSymbol, row, col);
-      // на какую ячейку ходит
-      let itemId: string = this.getCellId(row + '' + col);
+      let gamerNumber: number = this.getGamerNumber(gamer);
+      this.setSymbolOnGameBoard(gamerNumber, cell);
       let className: string = this.getGamerClassName(gamer);
-      document.getElementById(itemId).classList.add(className);
-      // проверим, вдруг выиграл?
-      if (this.isWinning(gamer)){
-        console.log('WIN!!!!!!!!!');
-        this.doConfirm(gamerSymbol);
+      // на какую ячейку ходит
+      document.getElementById("id_" + cell.toString()).classList.add(className);
+      // проверим, выигрышный ход или ничья
+      this.finishGame = this.checkFinishGame(gamer);
+      if (this.finishGame.isFinish) {
+        this.doConfirm(gamerNumber.toString());
       } else {
         // передать ход другому
         this.setNextGamer();
+
       }
     } else {
+      // TODO: доработать кейс, когда выбирают занятую чяейку
       console.log('ячейка занята');
     }
-    //this.gameBoardPrint();
+    this.boardPrint();
   }
 
+  /**
+   * Поиск оптимального хода
+   *
+   * @returns {number} - номер ячейки для хода
+   */
+  searchMove(): number {
+    let cell: number = 0;
+    let estimateMoveOpponent: number; // оценка хода соперника
+    let estimateMove: number; // оценка своего хода
+    for (let lc of this.winCombination) {
+      estimateMoveOpponent = 0;
+      estimateMove = 0;
+      // цикл для поиска предвыиграшной комбинации - "занято две из трех ячеек"
+      for (let pos of lc) {
+        let boardPosVal = this.board[pos - 1];
+        if (boardPosVal == this.firstGamerNumber) {
+          estimateMoveOpponent += boardPosVal;
+        } else if (boardPosVal == this.secondGamerNumber) {
+          estimateMove += boardPosVal;
+        }
+      }
 
-  // вернуть свободную чейку
-  freeCellGameBoard(): CellGameBoard{
-    for (let row of this.boardRows) {
-      for (let col of this.boardCols) {
-        if (this.gameBoard[row-1][col-1] == null){
-          return new CellGameBoard(row, col);
+      // TODO: дописать ход на выигрыш, если два-два..
+      // если у оппонента следующий ход может быть выигрышным (две из трех ячеек по выиграшной линии отмечены), то займем свободную сами
+      if (estimateMoveOpponent > this.firstGamerNumber && estimateMove != this.secondGamerNumber) {
+        for (let pos of lc) {
+          if (this.board[pos - 1] == 0) {
+            cell = pos;
+          }
+        }
+        break;
+      } else if (estimateMove > this.secondGamerNumber) {
+        for (let pos of lc) {
+          if (this.board[pos - 1] == 0) {
+            cell = pos;
+          }
+        }
+        break;
+      }
+    }
+
+    // если нигде не нашли предвыиграшную комбинацию, то сходим рандомно
+    if(cell == 0) {
+      cell = this.getFreeCellRandom()
+    }
+
+    return cell;
+  }
+
+  /**
+   *  Свободная ячейка рандомно
+   *
+   * @returns {number}
+   */
+  getFreeCellRandom(): number {
+    let randomCell: number;
+    let cellValue: number = 1;
+    while (cellValue != 0){
+      randomCell = this.getRandomInt(1, 9);
+      cellValue = this.board[randomCell - 1];
+    }
+    return randomCell;
+  }
+
+  /**
+   * Подучить рандомно целое число в диапазоне от min до max
+   *
+   * @param min
+   * @param max
+   * @returns {any}
+   */
+  getRandomInt(min, max){
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  /**
+   *  Проверить на выигрышную комбинацию или на ничью
+   *
+   * @param {string} gamer
+   * @returns {boolean}
+   */
+  checkFinishGame(gamer: string): FinishGame {
+    let gamerNumber = this.getGamerNumber(gamer);
+    let count: number;
+
+    // проверка на выиграш одного из участников
+    for (let lc of this.winCombination) {
+      count = 0;
+      for (let pos of lc) {
+        let boardVal = this.board[pos - 1];
+        if (boardVal == gamerNumber) {
+          count++;
+        }
+        if (count == 3) {
+          return new FinishGame(true, "WIN"); // TODO: Переделать на enum FinishGame
         }
       }
     }
-  }
 
-
-  // проверить, нету ли выигрышной комбинации
-  isWinning(gamer: string): boolean {
-    let gamerSymbol = this.getGamerSymbol(gamer);
-    let b: boolean = false;
-
-    if (this.gameBoard[0][0] == gamerSymbol && this.gameBoard[0][1] == gamerSymbol && this.gameBoard[0][2] == gamerSymbol) {
-      b = true;
-    } else if (this.gameBoard[1][0] == gamerSymbol && this.gameBoard[1][1] == gamerSymbol && this.gameBoard[1][2] == gamerSymbol) {
-      b = true;
-    } else if (this.gameBoard[2][0] == gamerSymbol && this.gameBoard[2][1] == gamerSymbol && this.gameBoard[2][2] == gamerSymbol) {
-      b = true;
-    } else if (this.gameBoard[0][0] == gamerSymbol && this.gameBoard[1][0] == gamerSymbol && this.gameBoard[2][0] == gamerSymbol) {
-      b = true;
-    } else if (this.gameBoard[0][1] == gamerSymbol && this.gameBoard[1][1] == gamerSymbol && this.gameBoard[2][1] == gamerSymbol) {
-      b = true;
-    } else if (this.gameBoard[0][2] == gamerSymbol && this.gameBoard[1][2] == gamerSymbol && this.gameBoard[2][2] == gamerSymbol) {
-      b = true;
-    } else if (this.gameBoard[0][0] == gamerSymbol && this.gameBoard[1][1] == gamerSymbol && this.gameBoard[2][2] == gamerSymbol) {
-      b = true;
-    } else if (this.gameBoard[0][2] == gamerSymbol && this.gameBoard[1][1] == gamerSymbol && this.gameBoard[2][0] == gamerSymbol) {
-      b = true;
+    // проверка на ничью
+    let isCheckFreeCell: boolean = false;
+    for (let boardVal of this.board) {
+      if (boardVal == 0) {
+        isCheckFreeCell = true;
+      }
     }
 
-    return b;
+    if (!isCheckFreeCell) {
+      return new FinishGame(true, "DRAW"); // TODO: Переделать на enum FinishGame
+    }
+
+    //console.log("count = "+count)
+    return new FinishGame(false, null);
   }
 
 
-
-  setSymbolOnGameBoard(gamerSymbol: string, row: number, col: number){
-    this.gameBoard[row - 1][col - 1] = gamerSymbol;
+  setSymbolOnGameBoard(gamerSymbol: number, cell: number) {
+    this.board[cell - 1] = gamerSymbol;
   }
 
   getGamer(): string {
@@ -167,16 +262,30 @@ export class SinglePlayerPage {
     return gamer == this.firstGamer ? 'cell-background1' : 'cell-background2';
   }
 
-  getGamerSymbol(gamer: string): string {
-    return gamer == this.firstGamer ? this.firstGamerSymbol : this.secondGamerSymbol;
+
+  getGamerNumber(gamer: string): number {
+    return gamer == this.firstGamer ? this.firstGamerNumber : this.secondGamerNumber;
   }
 
-  checkCellIsEmpty(row: number, col: number): boolean {
-    return this.gameBoard[row - 1][col - 1] == null;
+  checkCellIsEmpty(cell: number): boolean {
+    return this.board[cell - 1] == 0;
   }
 
-  getCellId(index: string): string {
-    return 'id_' + index;
+
+  getCellId(row: number, col: number): string {
+    return "id_" + this.getCellIndex(row, col).toString();
+  }
+
+  getCellIndex(row: number, col: number): number {
+    let index: number;
+    if (row == 1) {
+      index = col;
+    } else if (row == 2) {
+      index = col + 3;
+    } else {
+      index = col + 6
+    }
+    return index;
   }
 
   gameBoardPrint(): void {
@@ -192,14 +301,22 @@ export class SinglePlayerPage {
     console.log(bg);
   }
 
+  boardPrint(): void {
+    let sb: string = '';
+    for (let i in this.board) {
+      sb += ' ' + this.board[i];
+    }
+    console.log(sb);
+  }
+
 }
 
+class FinishGame {
+  isFinish: boolean;
+  finishType: string;
 
-class CellGameBoard {
-  row: number;
-  col: number;
-  constructor(row: number, col: number){
-    this.row = row;
-    this.col = col;
+  constructor(isFinish: boolean, finishType: string) {
+    this.isFinish = isFinish;
+    this.finishType = finishType;
   }
 }
