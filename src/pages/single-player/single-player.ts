@@ -67,23 +67,25 @@ export class SinglePlayerPage {
 
 
   doConfirm(gamerSymbol: string) {
-    let msgWin: string, msgDraw: string;
+    let msgWin: string, msgDraw: string, titleWin: string, titleDraw: string;
     msgWin = gamerSymbol == "1" ? 'Молодец, ты победил!' : 'Ну ты лузер, ты проиграл!';
     msgDraw = 'Ничья!!!';
+    titleWin = 'Победа!'
+    titleDraw = 'Ничья!';
     let confirm = this.alertCtrl.create({
-      title: 'УРАААА!!!',
-      message: this.finishGame.finishType == 'WIN' ? msgWin : msgDraw, // TODO: enum
+      title: this.finishGame.finishType == 'WIN' ? titleWin : titleDraw, // TODO: enum
+      message: this.finishGame.finishType == 'WIN' ? msgWin+' Сыграешь еще раз?' : msgDraw, // TODO: enum
       buttons: [
         {
-          text: 'Уходим отсюда',
+          text: 'Сыграть',
           handler: () => {
-            this.goBack()
+            this.initialGameBoard();
           }
         },
         {
-          text: 'Сыграть еще раз',
+          text: 'Нет, спасибо',
           handler: () => {
-            this.initialGameBoard();
+            this.goBack()
           }
         }
       ]
@@ -91,13 +93,20 @@ export class SinglePlayerPage {
     confirm.present()
   }
 
+  cellIsNotEmpty(){
+    let alert = this.alertCtrl.create({
+      title: 'Ячейка занята!',
+      subTitle: 'Эта ячейка уже занята, сходите на другую!',
+      buttons: ['OK']
+    });
+    alert.present();
+  }
+
 
   goPlay(cell: number) {
-    //console.log('игрок ' + this.firstGamer + ': id_' + cell);
     this.play(this.firstGamer, cell);
     if (this.getGamer() == this.secondGamer) {
       let cellBoard = this.searchMove(); //this.freeCellGameBoard();
-      //console.log('игрок ' + this.secondGamer + ': id_' + cellBoard);
       this.play(this.secondGamer, cellBoard);
     }
   }
@@ -120,8 +129,7 @@ export class SinglePlayerPage {
 
       }
     } else {
-      // TODO: доработать кейс, когда выбирают занятую чяейку
-      console.log('ячейка занята');
+      this.cellIsNotEmpty();
     }
     this.boardPrint();
   }
