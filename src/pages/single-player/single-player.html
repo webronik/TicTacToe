@@ -1,24 +1,23 @@
-<ion-header>
+<!--<ion-header>
 
   <ion-navbar>
-    <ion-title>single-player</ion-title>
+    <ion-title>Одиночная игра</ion-title>
   </ion-navbar>
 
-</ion-header>
+</ion-header>-->
 
 
 <ion-content padding>
 
   <div id="content-header">
+    <div style="height: 35%;"></div>
+    <div style="height: 35%;"></div>
+    <div style="height: 30%; text-align: center;">
+      <p>Начните играть!</p>
+    </div>
   </div>
 
   <div id="content">
-    <!--    <div *ngFor="let row of boardRows" class="grid-row">
-          <div *ngFor="let col of boardCols"
-               (click)="goPlay(board_ids[])"
-               [id]="getCellId(cell_index)">
-          </div>
-        </div>-->
     <div *ngFor="let row of boardRows" class="grid-row">
       <div *ngFor="let col of boardCols"
            (click)="goPlay(getCellIndex(row, col))"
