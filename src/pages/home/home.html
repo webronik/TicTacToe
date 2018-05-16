@@ -1,19 +1,33 @@
-<ion-header>
+<!--<ion-header>
+
   <ion-navbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
+    <ion-title>Одиночная игра</ion-title>
   </ion-navbar>
-</ion-header>
+
+</ion-header>-->
+
 
 <ion-content padding>
-  Главная страница приложения
-  <p>
-    Игра "Крестики-нолики"
-  </p>
 
-  <button ion-button block (click)="goSinglePlayerPage()">
-    Один игрок
-  </button>
+  <div id="content-header">
+    <div style="height: 35%;"></div>
+    <div style="height: 35%;"></div>
+    <div style="height: 30%; text-align: center;">
+      <p>Начните играть!</p>
+    </div>
+  </div>
+
+  <div id="content">
+    <div *ngFor="let row of boardRows" class="grid-row">
+      <div *ngFor="let col of boardCols"
+           (click)="goPlay(getCellIndex(row, col))"
+           [id]="getCellId(row, col)">
+      </div>
+    </div>
+  </div>
+
+  <div id="content-footer">
+    <button ion-button block (click)="initialGameBoard()">Начать заного</button>
+  </div>
 
 </ion-content>
