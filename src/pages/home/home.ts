@@ -56,6 +56,7 @@ export class HomePage {
     }
 
     this.setGamer(this.firstGamer);
+    this.setStatus(true);
   }
 
   // закрыть страницу
@@ -68,27 +69,6 @@ export class HomePage {
     let msgWin: string, msgDraw: string, titleWin: string, titleDraw: string;
     msgWin = gamerSymbol == "1" ? 'Молодец, ты победил!' : 'Ну ты лузер, ты проиграл!';
     msgDraw = 'Ничья!!!';
-    titleWin = 'Победа!'
-    titleDraw = 'Ничья!';
-    /*let confirm = this.alertCtrl.create({
-      title: this.finishGame.finishType == 'WIN' ? titleWin : titleDraw, // TODO: enum
-      message: this.finishGame.finishType == 'WIN' ? msgWin+' Сыграешь еще раз?' : msgDraw, // TODO: enum
-      buttons: [
-        {
-          text: 'Сыграть',
-          handler: () => {
-            this.initialGameBoard();
-          }
-        },
-        {
-          text: 'Нет, спасибо',
-          handler: () => {
-            this.goBack()
-          }
-        }
-      ]
-    });
-    confirm.present();*/
     let toast = this.toastCtrl.create({
       message: this.finishGame.finishType == 'WIN' ? msgWin : msgDraw,
       duration: 3000,
@@ -102,7 +82,7 @@ export class HomePage {
     toast.present();
   }
 
-  cellIsNotEmpty(){
+  cellIsNotEmpty() {
     let alert = this.alertCtrl.create({
       title: 'Ячейка занята!',
       subTitle: 'Эта ячейка уже занята, сходите на другую!',
@@ -128,19 +108,38 @@ export class HomePage {
       let className: string = this.getGamerClassName(gamer);
       // на какую ячейку ходит
       document.getElementById("id_" + cell.toString()).classList.add(className);
-      // проверим, выигрышный ход или ничья
+      // проверим, на выигрыш или ничью
       this.finishGame = this.checkFinishGame(gamer);
       if (this.finishGame.isFinish) {
         this.doConfirm(gamerNumber.toString());
       } else {
         // передать ход другому
         this.setNextGamer();
-
+        this.setStatus();
       }
     } else {
       this.cellIsNotEmpty();
     }
     this.boardPrint();
+  }
+
+  /**
+   * Установить статус в игре
+   *
+   * @param {boolean} isInitial - true, если начало игры
+   */
+  setStatus(isInitial?: boolean): void {
+    let status = isInitial ? 'Начните играть!' : 'Ходит ' + this.getGamerSymbol();
+    document.getElementById('status_game').innerHTML = '<p>' + status + '</p>';
+  }
+
+  /**
+   * Получить "символ" игрока
+   *
+   * @returns {string}
+   */
+  getGamerSymbol(): string {
+    return this.getGamer() == this.firstGamer ? this.firstGamerSymbol : this.secondGamerSymbol;
   }
 
   /**
@@ -185,7 +184,7 @@ export class HomePage {
     }
 
     // если нигде не нашли предвыиграшную комбинацию, то сходим рандомно
-    if(cell == 0) {
+    if (cell == 0) {
       cell = this.getFreeCellRandom()
     }
 
@@ -200,7 +199,7 @@ export class HomePage {
   getFreeCellRandom(): number {
     let randomCell: number;
     let cellValue: number = 1;
-    while (cellValue != 0){
+    while (cellValue != 0) {
       randomCell = this.getRandomInt(1, 9);
       cellValue = this.board[randomCell - 1];
     }
@@ -214,7 +213,7 @@ export class HomePage {
    * @param max
    * @returns {any}
    */
-  getRandomInt(min, max){
+  getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
@@ -258,19 +257,36 @@ export class HomePage {
     return new FinishGame(false, null);
   }
 
-
+  /**
+   * Установить символ на игровую доску
+   *
+   * @param {number} gamerSymbol
+   * @param {number} cell
+   */
   setSymbolOnGameBoard(gamerSymbol: number, cell: number) {
     this.board[cell - 1] = gamerSymbol;
   }
 
+  /**
+   * Получить игрока
+   *
+   * @returns {string}
+   */
   getGamer(): string {
     return this.gamer;
   }
 
+  /**
+   * Установить игрока
+   * @param {string} gamer
+   */
   setGamer(gamer: string): void {
     this.gamer = gamer;
   }
 
+  /**
+   * Назначить ход следующему игроку
+   */
   setNextGamer(): void {
     this.setGamer(this.getGamer() != this.secondGamer ? this.secondGamer : this.firstGamer);
   }
