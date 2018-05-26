@@ -45,4 +45,14 @@ page-home {
   .cell-background2 {
     background: #f30d0d;
   }
+
+  .scoreboard {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .shadow {
+    box-shadow: inset 0 0 0 3px mediumslateblue;
+  }
 }

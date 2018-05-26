@@ -21,8 +21,8 @@ export class HomePage {
 
   firstGamer = "FIRSTPLAYER";
   secondGamer = "SECONDPLAYER";
-  firstGamerSymbol: string = 'x';
-  secondGamerSymbol: string = '0';
+  firstGamerSymbol: string = 'X';
+  secondGamerSymbol: string = 'O';
   firstGamerNumber: number = 1;
   secondGamerNumber: number = 2;
   gamer: string;
@@ -93,9 +93,9 @@ export class HomePage {
 
 
   goPlay(cell: number) {
-    this.play(this.firstGamer, cell);
+    this.play(this.getGamer(), cell);
     if (this.getGamer() == this.secondGamer) {
-      let cellBoard = this.searchMove(); //this.freeCellGameBoard();
+      let cellBoard = this.searchMove();
       this.play(this.secondGamer, cellBoard);
     }
   }
@@ -129,8 +129,19 @@ export class HomePage {
    * @param {boolean} isInitial - true, если начало игры
    */
   setStatus(isInitial?: boolean): void {
-    let status = isInitial ? 'Начните играть!' : 'Ходит ' + this.getGamerSymbol();
+    this.delShadowClassScoreBoard();
+    let gamerSymbol = this.getGamerSymbol();
+    let status = isInitial ? 'Начните играть!' : 'Ходит ' + gamerSymbol;
     document.getElementById('status_game').innerHTML = '<p>' + status + '</p>';
+    document.getElementById('gamer'+ (isInitial ? this.firstGamerSymbol : gamerSymbol)).classList.add('shadow');
+  }
+
+  /**
+   * Удалить тень вокруг табло счета
+   */
+  delShadowClassScoreBoard(): void {
+    document.getElementById('gamer'+this.firstGamerSymbol).classList.remove('shadow');
+    document.getElementById('gamer'+this.secondGamerSymbol).classList.remove('shadow');
   }
 
   /**
