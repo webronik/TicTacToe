@@ -131,17 +131,17 @@ export class HomePage {
   setStatus(isInitial?: boolean): void {
     this.delShadowClassScoreBoard();
     let gamerSymbol = this.getGamerSymbol();
-    let status = isInitial ? 'Начните играть!' : 'Ходит ' + gamerSymbol;
+    let status = isInitial ? 'Начни игру!' : 'Ходит ' + gamerSymbol;
     document.getElementById('status_game').innerHTML = '<p>' + status + '</p>';
-    document.getElementById('gamer'+ (isInitial ? this.firstGamerSymbol : gamerSymbol)).classList.add('shadow');
+    document.getElementById('gamer' + (isInitial ? this.firstGamerSymbol : gamerSymbol)).classList.add('shadow');
   }
 
   /**
    * Удалить тень вокруг табло счета
    */
   delShadowClassScoreBoard(): void {
-    document.getElementById('gamer'+this.firstGamerSymbol).classList.remove('shadow');
-    document.getElementById('gamer'+this.secondGamerSymbol).classList.remove('shadow');
+    document.getElementById('gamer' + this.firstGamerSymbol).classList.remove('shadow');
+    document.getElementById('gamer' + this.secondGamerSymbol).classList.remove('shadow');
   }
 
   /**
@@ -351,6 +351,44 @@ export class HomePage {
       sb += ' ' + this.board[i];
     }
     console.log(sb);
+  }
+
+  getCellClass(row: number, col: number): string {
+    let index = this.getCellIndex(row, col);
+    let className;
+    switch (index) {
+      case 1:
+        className = 'border-bottom border-right';
+        break;
+      case 2:
+        className = 'border-bottom border-right border-left';
+        break;
+      case 3:
+        className = 'border-bottom border-left';
+        break;
+      case 4:
+        className = 'border-bottom border-top border-right';
+        break;
+      case 5:
+        className = 'border-bottom border-top border-right border-left';
+        break;
+      case 6:
+        className = 'border-bottom border-top border-left';
+        break;
+      case 7:
+        className = 'border-top border-right';
+        break;
+      case 8:
+        className = 'border-top border-right border-left';
+        break;
+      case 9:
+        className = 'border-top border-left';
+        break;
+      default:
+        className = '';
+        break;
+    }
+    return className;
   }
 
 }

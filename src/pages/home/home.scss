@@ -1,7 +1,7 @@
 page-home {
 
   div {
-    border: 1px solid #5d30ff; /* Синяя рамка */
+    //border: 1px solid #5d30ff; /* Синяя рамка */
   }
 
   div #content-header {
@@ -24,6 +24,9 @@ page-home {
     height: 33.5%;
   }
 
+  div #status_game > p {
+    font-size: 80%;
+  }
 
   .grid-row {
     display: table;
@@ -35,7 +38,23 @@ page-home {
   .grid-row div {
     display: table-cell;
     //background: red;
-    border: 1px solid black;
+    //border: 1px solid black;
+  }
+
+  .border-top {
+    border-top: 2px ridge #4d4d4d;
+  }
+
+  .border-bottom {
+    border-bottom: 2px ridge #4d4d4d;
+  }
+
+  .border-right {
+    border-right: 2px ridge #4d4d4d;
+  }
+
+  .border-left {
+    border-left: 2px ridge #4d4d4d;
   }
 
   .cell-background1 {

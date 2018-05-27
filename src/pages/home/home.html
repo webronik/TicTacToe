@@ -10,8 +10,8 @@
 <ion-content padding>
 
   <div id="content-header">
-    <div style="height: 35%;"></div>
-    <div style="height: 35%;">
+    <div style="height: 34%;"></div>
+    <div style="height: 34%;">
       <div style="height: 100%; width: 100%; display: table;">
         <div style="display: table-row;">
           <div class="col-6 scoreboard" id="gamerX">
@@ -23,16 +23,17 @@
         </div>
       </div>
     </div>
-    <div style="height: 30%; text-align: center;" id="status_game">
-      <p>Начните играть!</p>
+    <div style="height: 32%; text-align: center;" id="status_game">
+      <p>Начни игру!</p>
     </div>
   </div>
 
-  <div id="content">
+  <div id="content" style="background-color: cadetblue">
     <div *ngFor="let row of boardRows" class="grid-row">
       <div *ngFor="let col of boardCols"
            (click)="goPlay(getCellIndex(row, col))"
-           [id]="getCellId(row, col)">
+           [id]="getCellId(row, col)"
+           [ngClass]="getCellClass(row, col)">
       </div>
     </div>
   </div>
