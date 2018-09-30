@@ -66,7 +66,7 @@ export class HomePage {
 
 
   doConfirm(gamerSymbol: string) {
-    let msgWin: string, msgDraw: string, titleWin: string, titleDraw: string;
+    let msgWin: string, msgDraw: string;//, titleWin: string, titleDraw: string;
     msgWin = gamerSymbol == "1" ? 'Молодец, ты победил!' : 'Ну ты лузер, ты проиграл!';
     msgDraw = 'Ничья!!!';
     let toast = this.toastCtrl.create({
@@ -96,7 +96,7 @@ export class HomePage {
     this.play(this.getGamer(), cell);
     if (this.getGamer() == this.secondGamer) {
       let cellBoard = this.searchMove();
-      this.play(this.secondGamer, cellBoard);
+      setTimeout(() => this.play(this.secondGamer, cellBoard), 1000);
     }
   }
 
@@ -115,7 +115,7 @@ export class HomePage {
       } else {
         // передать ход другому
         this.setNextGamer();
-        this.setStatus();
+        setTimeout(() => this.setStatus(), 300);
       }
     } else {
       this.cellIsNotEmpty();
