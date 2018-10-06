@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {AlertController, NavController, NavParams, ToastController} from 'ionic-angular';
+import {AlertController, LoadingController, NavController, NavParams, ToastController} from 'ionic-angular';
 
 @Component({
   selector: 'page-home',
@@ -29,7 +29,7 @@ export class HomePage {
   finishGame: FinishGame;
 
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtrl: AlertController, public toastCtrl: ToastController) {
+  constructor(public navCtrl: NavController, public navParams: NavParams, public alertCtrl: AlertController, public toastCtrl: ToastController, public loadingCtrl: LoadingController) {
 
   }
 
@@ -93,10 +93,16 @@ export class HomePage {
 
 
   goPlay(cell: number) {
+    let loading = this.loadingCtrl.create();
+
     this.play(this.getGamer(), cell);
     if (this.getGamer() == this.secondGamer) {
       let cellBoard = this.searchMove();
-      setTimeout(() => this.play(this.secondGamer, cellBoard), 1000);
+      loading.present();
+      setTimeout(() => {
+        this.play(this.secondGamer, cellBoard);
+        loading.dismiss();
+      }, 1000);
     }
   }
 
