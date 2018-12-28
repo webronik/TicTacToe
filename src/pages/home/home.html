@@ -9,17 +9,20 @@
 
 <ion-content padding>
 
-  <div id="content-header">
+  <div id="content-header" style="background-color: #eeeeee">
     <div style="height: 34%;"></div>
     <div style="height: 34%;">
       <div style="height: 100%; width: 100%; display: table;">
         <div style="display: table-row;">
-          <div class="col-6 scoreboard" id="gamerX">
+          <div class="col-1 scoreboard-outside"></div>
+          <div class="col-4 scoreboard" id="gamerX">
             X
           </div>
-          <div class="col-6 scoreboard" id="gamerO">
+          <div class="col-2 scoreboard-outside"></div>
+          <div class="col-4 scoreboard" id="gamerO">
             O
           </div>
+          <div class="col-1 scoreboard-outside"></div>
         </div>
       </div>
     </div>
@@ -28,7 +31,7 @@
     </div>
   </div>
 
-  <div id="content" style="background-color: cadetblue">
+  <div id="content" style="background-color: #dedede">
     <div *ngFor="let row of boardRows" class="grid-row">
       <div *ngFor="let col of boardCols"
            (click)="goPlay(getCellIndex(row, col))"
@@ -38,7 +41,7 @@
     </div>
   </div>
 
-  <div id="content-footer" style="padding: 10% 0">
+  <div id="content-footer" style="padding: 10% 0; background-color: #eeeeee">
       <button ion-button block (click)="initialGameBoard()">Начать заново</button>
   </div>
 
