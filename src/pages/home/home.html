@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  <div id="content" style="background-color: cadetblue">
+  <div id="content" style="background: linear-gradient(to right, #fffe85, #9fff99)">
     <div *ngFor="let row of boardRows" class="grid-row">
       <div *ngFor="let col of boardCols"
            (click)="goPlay(getCellIndex(row, col))"
