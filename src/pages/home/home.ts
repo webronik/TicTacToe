@@ -93,15 +93,15 @@ export class HomePage {
 
 
   goPlay(cell: number) {
-    let loading = this.loadingCtrl.create();
+    //let loading = this.loadingCtrl.create();
 
     this.play(this.getGamer(), cell);
     if (this.getGamer() == this.secondGamer) {
       let cellBoard = this.searchMove();
-      loading.present();
+      //loading.present();
       setTimeout(() => {
         this.play(this.secondGamer, cellBoard);
-        loading.dismiss();
+        //loading.dismiss();
       }, 1000);
     }
   }
